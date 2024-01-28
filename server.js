@@ -2,7 +2,7 @@ const path = require("path");
 const { db, sequelize } = require("./models");
 const express = require("express");
 const session = require("express-session");
-const handlebars = require("express-handlebars");
+const { create } = require("express-handlebars");
 const SequelizeStore = require("connect-session-sequelize")(session.Store);
 
 const app = express();
@@ -23,15 +23,28 @@ const sess = {
   }),
 };
 
+const hbs = create();
+
 app.use(session(sess));
 
-const hbs = handlebars.create();
+// Register `hbs.engine` with the Express app.
 app.engine("handlebars", hbs.engine);
 app.set("view engine", "handlebars");
+app.set("views", "./views");
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(express.static(path.join(__dirname, "views")));
+app.use(express.static(path.join(__dirname, "public")));
+
+// homepage
+app.get("/", (_, res) => {
+  res.render("home");
+});
+
+// about page
+app.get("/about", (_, res) => {
+  res.render("about");
+});
 
 // routes
 app.use(require("./routes/user.routes"));
